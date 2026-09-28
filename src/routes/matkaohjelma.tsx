@@ -120,8 +120,8 @@ function ItineraryPage() {
 
         {trip.days.map((day) => (
           <section key={day.day} className="mt-8">
-            <h2 className="flex items-baseline gap-2 font-display text-lg font-semibold">
-              Päivä {day.day}
+            <h2 className="flex items-baseline gap-2 font-display text-lg font-semibold [&>span]:min-w-0">
+              <span className="shrink-0 whitespace-nowrap">Päivä {day.day}</span>
               <span className="text-sm font-normal text-muted-foreground">· {day.title}</span>
             </h2>
             <ol className="relative mt-4 space-y-3 border-l-2 border-dashed border-border pl-6">
