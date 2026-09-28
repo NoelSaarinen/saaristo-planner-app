@@ -65,7 +65,7 @@ function ItineraryPage() {
             [60, 40, 38], [150, 90, 26], [250, 60, 30], [320, 150, 34], [110, 190, 30],
             [210, 200, 22], [360, 60, 18], [30, 130, 20],
           ].map(([cx, cy, r], i) => (
-            <ellipse key={i} cx={cx} cy={cy} rx={r} ry={r * 0.7} className="fill-background/70" />
+            <ellipse key={i} cx={cx} cy={cy} rx={r} ry={(r ?? 0) * 0.7} className="fill-background/70" />
           ))}
           <path
             d={trip.route
