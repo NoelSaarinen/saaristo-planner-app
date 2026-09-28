@@ -3,13 +3,19 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import {
   ArrowLeft,
   BedDouble,
-  Bus,
+  Bike,
+  Check,
   CreditCard,
+  Loader2,
   MapPin,
   Mountain,
+  QrCode,
   Ship,
+  Smartphone,
   Sparkles,
   Utensils,
+  Wallet,
+  X,
 } from "lucide-react";
 import type { EventType, Itinerary } from "@/lib/itinerary.functions";
 
@@ -35,9 +41,50 @@ const EVENT_STYLE: Record<EventType, { icon: typeof Ship; label: string; cls: st
   transport: { icon: Bus, label: "Siirtymä", cls: "bg-muted text-foreground" },
 };
 
+const ORDER_ITEMS = [
+  { icon: Ship, label: "Lauttaliput", price: 15 },
+  { icon: BedDouble, label: "Majoitus", price: 150 },
+  { icon: Bike, label: "Pyörävuokraus", price: 80 },
+];
+const ORDER_TOTAL = ORDER_ITEMS.reduce((s, i) => s + i.price, 0);
+
+const PAY_METHODS = [
+  { id: "mobilepay", label: "MobilePay", icon: Smartphone },
+  { id: "applepay", label: "Apple Pay", icon: Wallet },
+  { id: "card", label: "Luottokortti", icon: CreditCard },
+];
+
+type CheckoutStep = "closed" | "pay" | "processing" | "success" | "tickets";
+
+function FakeQr({ seed }: { seed: number }) {
+  const cells = Array.from({ length: 49 }, (_, i) => (i * 7 + seed * 13) % 3 !== 0);
+  return (
+    <div className="grid grid-cols-7 gap-0.5 rounded-xl bg-card p-3">
+      {cells.map((on, i) => (
+        <span key={i} className={`size-2.5 rounded-[2px] ${on ? "bg-foreground" : "bg-transparent"}`} />
+      ))}
+    </div>
+  );
+}
+
 function ItineraryPage() {
   const navigate = useNavigate();
   const [trip, setTrip] = useState<Itinerary | null>(null);
+  const [step, setStep] = useState<CheckoutStep>("closed");
+  const [method, setMethod] = useState("mobilepay");
+
+  useEffect(() => {
+    if (step !== "closed") document.body.style.overflow = "hidden";
+    else document.body.style.overflow = "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [step]);
+
+  const handlePay = () => {
+    setStep("processing");
+    window.setTimeout(() => setStep("success"), 1600);
+  };
 
   useEffect(() => {
     const raw = sessionStorage.getItem("saaristo-itinerary");
