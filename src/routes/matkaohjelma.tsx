@@ -4,6 +4,8 @@ import {
   ArrowLeft,
   BedDouble,
   Bike,
+  Bus,
+  Bike,
   Check,
   CreditCard,
   Loader2,
