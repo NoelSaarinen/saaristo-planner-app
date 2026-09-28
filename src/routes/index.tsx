@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import {
   Anchor,
@@ -52,6 +52,14 @@ const STYLE_TAGS = ["Rento", "Aktiivinen", "Luksus", "Luonto", "Kulttuuri", "Ruo
 const MAX_BUDGET = 1000;
 const MIN_BUDGET = 50;
 
+const PLANNING_PHRASES = [
+  "Analysoidaan reittivaihtoehtoja…",
+  "Tarkistetaan lautta-aikatauluja…",
+  "Etsitään parhaita majapaikkoja…",
+  "Lasketaan kokonaishintaa…",
+] as const;
+const PHASE_DURATION_MS = 750; // 4 phrases × 750ms = 3s total
+
 function Index() {
   const [budget, setBudget] = useState(300);
   const [transport, setTransport] = useState<string | null>(null);
@@ -59,6 +67,8 @@ function Index() {
   const [styles, setStyles] = useState<string[]>(["Luonto"]);
   const [planning, setPlanning] = useState(false);
   const [planned, setPlanned] = useState(false);
+  const [phraseIndex, setPhraseIndex] = useState(0);
+  const resultRef = useRef<HTMLDivElement>(null);
 
   const budgetLabel = budget >= MAX_BUDGET ? "1000 €+" : `${budget} €`;
   const sliderFill = useMemo(
@@ -72,13 +82,31 @@ function Index() {
     );
 
   const handlePlan = () => {
-    setPlanning(true);
+    setPhraseIndex(0);
     setPlanned(false);
+    setPlanning(true);
     window.setTimeout(() => {
       setPlanning(false);
       setPlanned(true);
-    }, 1400);
+      window.setTimeout(() => {
+        resultRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 100);
+    }, PLANNING_PHRASES.length * PHASE_DURATION_MS);
   };
+
+  // Cycle the planning phrases and lock page scroll while the overlay is up.
+  useEffect(() => {
+    if (!planning) return;
+    document.body.style.overflow = "hidden";
+    const cycle = window.setInterval(
+      () => setPhraseIndex((i) => Math.min(i + 1, PLANNING_PHRASES.length - 1)),
+      PHASE_DURATION_MS,
+    );
+    return () => {
+      document.body.style.overflow = "";
+      window.clearInterval(cycle);
+    };
+  }, [planning]);
 
   return (
     <div className="min-h-screen bg-background font-sans">
@@ -285,7 +313,10 @@ function Index() {
 
           {/* Result preview */}
           {planned && (
-            <div className="mt-6 animate-in fade-in slide-in-from-bottom-3 rounded-3xl border border-border bg-muted/50 p-5 duration-500">
+            <div
+              ref={resultRef}
+              className="mt-6 scroll-mt-6 animate-in fade-in slide-in-from-bottom-3 rounded-3xl border border-border bg-muted/50 p-5 duration-500"
+            >
               <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
                 <Wind className="size-4 text-accent" />
                 Esikatselu: {days} päivän reitti · {budgetLabel}
@@ -317,6 +348,43 @@ function Index() {
           )}
         </section>
       </main>
+
+      {/* Full-screen planning overlay */}
+      {planning && (
+        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-background/95 px-6 backdrop-blur-sm animate-in fade-in duration-300">
+          <div className="relative grid place-items-center">
+            <span className="absolute size-24 rounded-full bg-primary/20 animate-ping" />
+            <span className="grid size-24 place-items-center rounded-full bg-primary text-primary-foreground shadow-xl shadow-primary/30">
+              <MapPin className="size-10" />
+            </span>
+          </div>
+          <p className="mt-8 inline-flex items-center gap-2 rounded-full bg-secondary px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-secondary-foreground">
+            <Sparkles className="size-3.5" />
+            Tekoäly rakentaa matkaasi
+          </p>
+          <p
+            key={phraseIndex}
+            aria-live="polite"
+            className="mt-4 h-7 text-center font-display text-lg font-semibold text-foreground animate-in fade-in slide-in-from-bottom-2 duration-500"
+          >
+            {PLANNING_PHRASES[phraseIndex]}
+          </p>
+          <div className="mt-6 w-full max-w-xs">
+            <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
+              <div className="planning-progress h-full w-full rounded-full bg-accent" />
+            </div>
+            <div className="mt-3 flex items-center justify-between text-xs text-muted-foreground">
+              <span className="flex items-center gap-1.5">
+                <Loader2 className="size-3.5 animate-spin" />
+                {days} päivää · {budgetLabel}
+              </span>
+              <span className="tabular-nums">
+                {Math.round(((phraseIndex + 1) / PLANNING_PHRASES.length) * 100)} %
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
 
       <footer className="border-t border-border/60 py-8 text-center text-xs text-muted-foreground">
         <span className="inline-flex items-center gap-1.5">
