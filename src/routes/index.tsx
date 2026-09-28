@@ -103,6 +103,7 @@ function Index() {
       ]);
       if (res.itinerary) {
         sessionStorage.setItem("saaristo-itinerary", JSON.stringify(res.itinerary));
+        sessionStorage.setItem("saaristo-transport", transport);
         navigate({ to: "/matkaohjelma" });
         return;
       }
