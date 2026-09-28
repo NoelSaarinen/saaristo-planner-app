@@ -5,7 +5,6 @@ import {
   BedDouble,
   Bike,
   Bus,
-  Bike,
   Check,
   CreditCard,
   Loader2,
