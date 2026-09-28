@@ -10,11 +10,17 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as LompakkoRouteImport } from './routes/lompakko'
 import { Route as MatkaohjelmaRouteImport } from './routes/matkaohjelma'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LompakkoRoute = LompakkoRouteImport.update({
+  id: '/lompakko',
+  path: '/lompakko',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MatkaohjelmaRoute = MatkaohjelmaRouteImport.update({
@@ -25,27 +31,31 @@ const MatkaohjelmaRoute = MatkaohjelmaRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/lompakko': typeof LompakkoRoute
   '/matkaohjelma': typeof MatkaohjelmaRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/lompakko': typeof LompakkoRoute
   '/matkaohjelma': typeof MatkaohjelmaRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/lompakko': typeof LompakkoRoute
   '/matkaohjelma': typeof MatkaohjelmaRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/matkaohjelma'
+  fullPaths: '/' | '/lompakko' | '/matkaohjelma'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/matkaohjelma'
-  id: '__root__' | '/' | '/matkaohjelma'
+  to: '/' | '/lompakko' | '/matkaohjelma'
+  id: '__root__' | '/' | '/lompakko' | '/matkaohjelma'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  LompakkoRoute: typeof LompakkoRoute
   MatkaohjelmaRoute: typeof MatkaohjelmaRoute
 }
 
@@ -56,6 +66,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lompakko': {
+      id: '/lompakko'
+      path: '/lompakko'
+      fullPath: '/lompakko'
+      preLoaderRoute: typeof LompakkoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/matkaohjelma': {
@@ -70,6 +87,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  LompakkoRoute: LompakkoRoute,
   MatkaohjelmaRoute: MatkaohjelmaRoute,
 }
 export const routeTree = rootRouteImport

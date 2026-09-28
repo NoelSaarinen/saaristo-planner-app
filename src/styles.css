@@ -39,6 +39,7 @@
   --color-sea: var(--sea);
   --color-sea-soft: var(--sea-soft);
   --color-sand: var(--sand);
+  --color-warning: var(--warning);
   --font-display: "Sora", sans-serif;
   --font-sans: "Manrope", sans-serif;
 }
@@ -67,6 +68,7 @@
   --sea: oklch(0.48 0.095 220);
   --sea-soft: oklch(0.86 0.045 200);
   --sand: oklch(0.94 0.03 90);
+  --warning: oklch(0.8 0.15 80);
 }
 
 .dark {
@@ -92,6 +94,7 @@
   --sea: oklch(0.75 0.09 200);
   --sea-soft: oklch(0.35 0.05 215);
   --sand: oklch(0.35 0.03 90);
+  --warning: oklch(0.75 0.14 80);
 }
 
 @layer base {

@@ -19,6 +19,10 @@ import {
   X,
 } from "lucide-react";
 import type { EventType, Itinerary } from "@/lib/itinerary.functions";
+import { toast } from "sonner";
+import { FakeQr, ORDER_ITEMS, ORDER_TOTAL, saveWallet } from "@/lib/tickets";
+import { LiveFerryCard } from "@/components/LiveFerryCard";
+import { DayWeather } from "@/components/DayWeather";
 
 export const Route = createFileRoute("/matkaohjelma")({
   head: () => ({
@@ -42,13 +46,6 @@ const EVENT_STYLE: Record<EventType, { icon: typeof Ship; label: string; cls: st
   transport: { icon: Bus, label: "Siirtymä", cls: "bg-muted text-foreground" },
 };
 
-const ORDER_ITEMS = [
-  { icon: Ship, label: "Lauttaliput", price: 15 },
-  { icon: BedDouble, label: "Majoitus", price: 150 },
-  { icon: Bike, label: "Pyörävuokraus", price: 80 },
-];
-const ORDER_TOTAL = ORDER_ITEMS.reduce((s, i) => s + i.price, 0);
-
 const PAY_METHODS = [
   { id: "mobilepay", label: "MobilePay", icon: Smartphone },
   { id: "applepay", label: "Apple Pay", icon: Wallet },
@@ -57,22 +54,12 @@ const PAY_METHODS = [
 
 type CheckoutStep = "closed" | "pay" | "processing" | "success" | "tickets";
 
-function FakeQr({ seed }: { seed: number }) {
-  const cells = Array.from({ length: 49 }, (_, i) => (i * 7 + seed * 13) % 3 !== 0);
-  return (
-    <div className="grid grid-cols-7 gap-0.5 rounded-xl bg-card p-3">
-      {cells.map((on, i) => (
-        <span key={i} className={`size-2.5 rounded-[2px] ${on ? "bg-foreground" : "bg-transparent"}`} />
-      ))}
-    </div>
-  );
-}
-
 function ItineraryPage() {
   const navigate = useNavigate();
   const [trip, setTrip] = useState<Itinerary | null>(null);
   const [step, setStep] = useState<CheckoutStep>("closed");
   const [method, setMethod] = useState("mobilepay");
+  const [isBike, setIsBike] = useState(false);
 
   useEffect(() => {
     if (step !== "closed") document.body.style.overflow = "hidden";
@@ -84,7 +71,10 @@ function ItineraryPage() {
 
   const handlePay = () => {
     setStep("processing");
-    window.setTimeout(() => setStep("success"), 1600);
+    window.setTimeout(() => {
+      saveWallet();
+      setStep("success");
+    }, 1600);
   };
 
   useEffect(() => {
@@ -94,8 +84,33 @@ function ItineraryPage() {
       return;
     }
     setTrip(JSON.parse(raw));
+    setIsBike(sessionStorage.getItem("saaristo-transport") === "pyora");
     window.scrollTo(0, 0);
   }, [navigate]);
+
+  const switchToBus = (dayNum: number) => {
+    setTrip((t) => {
+      if (!t) return t;
+      const next = {
+        ...t,
+        days: t.days.map((d) =>
+          d.day !== dayNum
+            ? d
+            : {
+                ...d,
+                events: d.events.map((e) =>
+                  /pyör/i.test(e.title) || e.type === "transport"
+                    ? { ...e, type: "transport" as const, title: `Bussikuljetus (korvaa: ${e.title})`, detail: "Saariston yhteysbussi – tuulensuojassa perille." }
+                    : e,
+                ),
+              },
+        ),
+      };
+      sessionStorage.setItem("saaristo-itinerary", JSON.stringify(next));
+      return next;
+    });
+    toast.success(`Päivän ${dayNum} pyöräily vaihdettu bussikuljetukseen`);
+  };
 
   if (!trip) return <div className="min-h-screen bg-background" />;
 
@@ -104,7 +119,7 @@ function ItineraryPage() {
   );
 
   return (
-    <div className="min-h-screen bg-background pb-32 font-sans animate-in fade-in duration-500">
+    <div className="min-h-screen bg-background pb-24 font-sans animate-in fade-in duration-500">
       {/* Map */}
       <div className="relative h-64 overflow-hidden bg-secondary sm:h-80">
         <svg viewBox="0 0 400 260" preserveAspectRatio="xMidYMid slice" className="absolute inset-0 h-full w-full">
@@ -172,6 +187,7 @@ function ItineraryPage() {
               <span className="shrink-0 whitespace-nowrap">Päivä {day.day}</span>
               <span className="text-sm font-normal text-muted-foreground">· {day.title}</span>
             </h2>
+            <DayWeather day={day.day} isBike={isBike} onSwitchToBus={() => switchToBus(day.day)} />
             <ol className="relative mt-4 space-y-3 border-l-2 border-dashed border-border pl-6">
               {day.events.map((ev, i) => {
                 const s = EVENT_STYLE[ev.type] ?? EVENT_STYLE.activity;
@@ -192,6 +208,7 @@ function ItineraryPage() {
                       </div>
                       <p className="mt-1 font-semibold text-foreground">{ev.title}</p>
                       <p className="mt-0.5 text-sm text-muted-foreground">{ev.detail}</p>
+                      {ev.type === "ferry" && <LiveFerryCard route={ev.title} time={ev.time} />}
                     </div>
                   </li>
                 );
@@ -202,7 +219,7 @@ function ItineraryPage() {
       </main>
 
       {/* Sticky bar */}
-      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-card/95 backdrop-blur">
+      <div className="fixed inset-x-0 bottom-16 z-40 border-t border-border bg-card/95 backdrop-blur">
         <div className="mx-auto flex max-w-xl items-center justify-between gap-4 px-4 py-3">
           <div>
             <p className="text-xs text-muted-foreground">Yhteensä</p>
