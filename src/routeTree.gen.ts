@@ -10,33 +10,43 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as MatkaohjelmaRouteImport } from './routes/matkaohjelma'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MatkaohjelmaRoute = MatkaohjelmaRouteImport.update({
+  id: '/matkaohjelma',
+  path: '/matkaohjelma',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/matkaohjelma': typeof MatkaohjelmaRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/matkaohjelma': typeof MatkaohjelmaRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/matkaohjelma': typeof MatkaohjelmaRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/matkaohjelma'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/matkaohjelma'
+  id: '__root__' | '/' | '/matkaohjelma'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  MatkaohjelmaRoute: typeof MatkaohjelmaRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +58,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/matkaohjelma': {
+      id: '/matkaohjelma'
+      path: '/matkaohjelma'
+      fullPath: '/matkaohjelma'
+      preLoaderRoute: typeof MatkaohjelmaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  MatkaohjelmaRoute: MatkaohjelmaRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

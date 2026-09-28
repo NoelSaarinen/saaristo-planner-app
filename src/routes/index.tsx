@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
+import { generateItinerary } from "@/lib/itinerary.functions";
 import {
   Anchor,
   ArrowRight,
@@ -68,7 +70,10 @@ function Index() {
   const [planning, setPlanning] = useState(false);
   const [planned, setPlanned] = useState(false);
   const [phraseIndex, setPhraseIndex] = useState(0);
+  const [error, setError] = useState<string | null>(null);
   const resultRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
+  const generate = useServerFn(generateItinerary);
 
   const budgetLabel = budget >= MAX_BUDGET ? "1000 €+" : `${budget} €`;
   const sliderFill = useMemo(
@@ -81,17 +86,31 @@ function Index() {
       prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag],
     );
 
-  const handlePlan = () => {
+  const handlePlan = async () => {
+    if (!transport) {
+      setError("Valitse ensin kulkuneuvo.");
+      return;
+    }
+    setError(null);
     setPhraseIndex(0);
     setPlanned(false);
     setPlanning(true);
-    window.setTimeout(() => {
-      setPlanning(false);
-      setPlanned(true);
-      window.setTimeout(() => {
-        resultRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-      }, 100);
-    }, PLANNING_PHRASES.length * PHASE_DURATION_MS);
+    const minWait = new Promise((r) => setTimeout(r, PLANNING_PHRASES.length * PHASE_DURATION_MS));
+    try {
+      const [res] = await Promise.all([
+        generate({ data: { budget, transport: transport as "pyora", days, styles } }),
+        minWait,
+      ]);
+      if (res.itinerary) {
+        sessionStorage.setItem("saaristo-itinerary", JSON.stringify(res.itinerary));
+        navigate({ to: "/matkaohjelma" });
+        return;
+      }
+      setError(res.error ?? "Jokin meni pieleen.");
+    } catch {
+      setError("Yhteys epäonnistui. Yritä uudelleen.");
+    }
+    setPlanning(false);
   };
 
   // Cycle the planning phrases and lock page scroll while the overlay is up.
@@ -310,6 +329,11 @@ function Index() {
               </>
             )}
           </button>
+          {error && (
+            <p role="alert" className="mt-4 rounded-2xl bg-destructive/10 px-4 py-3 text-sm font-medium text-destructive">
+              {error}
+            </p>
+          )}
 
           {/* Result preview */}
           {planned && (
