@@ -91,7 +91,7 @@ function Index() {
           height={1200}
           className="absolute inset-0 h-full w-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/35 to-background" />
+        <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/20 to-background/95" />
 
         <nav className="relative z-10 mx-auto flex max-w-5xl items-center justify-between px-5 py-5">
           <div className="flex items-center gap-2">
