@@ -120,6 +120,17 @@
   text-wrap: balance;
 }
 
+/* Planning overlay: 3s progress fill for the simulated AI planning */
+@keyframes planning-progress {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+@utility planning-progress {
+  animation: planning-progress 3s linear forwards;
+  transform-origin: left center;
+}
+
 /* Custom range slider */
 @layer base {
   input[type="range"] {
