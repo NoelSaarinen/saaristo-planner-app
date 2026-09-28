@@ -77,14 +77,19 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { title: "Saaristo — Turun saariston matkasuunnittelu" },
+      {
+        name: "description",
+        content: "Suunnittele matka Turun saaristoon helposti ja vaivattomasti.",
+      },
+      { name: "author", content: "Saaristo" },
+      { property: "og:title", content: "Saaristo — Turun saariston matkasuunnittelu" },
+      {
+        property: "og:description",
+        content: "Suunnittele matka Turun saaristoon helposti ja vaivattomasti.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:site", content: "@Lovable" },
     ],
     links: [
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
