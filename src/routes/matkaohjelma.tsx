@@ -210,12 +210,159 @@ function ItineraryPage() {
           </div>
           <button
             type="button"
+            onClick={() => setStep("pay")}
             className="cta-gradient flex items-center gap-2 rounded-2xl px-5 py-3 font-display text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/25 active:scale-95"
           >
             <CreditCard className="size-4" /> Varaa ja maksa matka
           </button>
         </div>
       </div>
+
+      {/* Checkout modal */}
+      {step !== "closed" && (
+        <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center">
+          <button
+            type="button"
+            aria-label="Sulje"
+            onClick={() => setStep("closed")}
+            className="absolute inset-0 bg-foreground/50 backdrop-blur-sm animate-in fade-in"
+          />
+          <div className="relative max-h-[92vh] w-full max-w-xl overflow-y-auto rounded-t-4xl bg-card p-6 shadow-2xl animate-in slide-in-from-bottom-8 duration-300 sm:rounded-4xl">
+            {step === "pay" && (
+              <>
+                <div className="flex items-center justify-between">
+                  <h2 className="font-display text-xl font-bold">Kassa</h2>
+                  <button
+                    type="button"
+                    onClick={() => setStep("closed")}
+                    aria-label="Sulje kassa"
+                    className="grid size-9 place-items-center rounded-full bg-muted text-muted-foreground"
+                  >
+                    <X className="size-4" />
+                  </button>
+                </div>
+
+                <section className="mt-5 rounded-2xl border border-border bg-background p-4">
+                  <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                    Tilauksen yhteenveto
+                  </h3>
+                  <ul className="mt-3 space-y-2.5">
+                    {ORDER_ITEMS.map((item) => (
+                      <li key={item.label} className="flex items-center justify-between text-sm">
+                        <span className="flex items-center gap-2.5 font-medium text-foreground">
+                          <span className="grid size-8 place-items-center rounded-lg bg-secondary text-secondary-foreground">
+                            <item.icon className="size-4" />
+                          </span>
+                          {item.label}
+                        </span>
+                        <span className="font-semibold tabular-nums">{item.price} €</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <div className="mt-3 flex items-center justify-between border-t border-dashed border-border pt-3">
+                    <span className="text-sm font-semibold">Yhteensä</span>
+                    <span className="font-display text-lg font-bold tabular-nums">{ORDER_TOTAL} €</span>
+                  </div>
+                </section>
+
+                <section className="mt-5">
+                  <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                    Maksutapa
+                  </h3>
+                  <div className="mt-3 grid grid-cols-3 gap-2">
+                    {PAY_METHODS.map((m) => (
+                      <button
+                        key={m.id}
+                        type="button"
+                        onClick={() => setMethod(m.id)}
+                        className={`flex flex-col items-center gap-1.5 rounded-2xl border-2 px-2 py-3 text-xs font-semibold transition-all active:scale-95 ${
+                          method === m.id
+                            ? "border-primary bg-primary/5 text-primary"
+                            : "border-border bg-background text-muted-foreground"
+                        }`}
+                      >
+                        <m.icon className="size-5" />
+                        {m.label}
+                        {method === m.id && <Check className="size-3.5" />}
+                      </button>
+                    ))}
+                  </div>
+                </section>
+
+                <button
+                  type="button"
+                  onClick={handlePay}
+                  className="cta-gradient mt-6 flex w-full items-center justify-center gap-2 rounded-2xl py-4 font-display text-base font-semibold text-primary-foreground shadow-lg shadow-primary/25 active:scale-[0.98]"
+                >
+                  Maksa {ORDER_TOTAL} €
+                </button>
+              </>
+            )}
+
+            {step === "processing" && (
+              <div className="flex flex-col items-center py-14 text-center">
+                <Loader2 className="size-12 animate-spin text-primary" />
+                <p className="mt-4 font-display text-lg font-semibold">Käsitellään maksua…</p>
+                <p className="mt-1 text-sm text-muted-foreground">Älä sulje ikkunaa.</p>
+              </div>
+            )}
+
+            {step === "success" && (
+              <div className="flex flex-col items-center py-8 text-center">
+                <span className="grid size-20 place-items-center rounded-full bg-accent text-accent-foreground animate-in zoom-in-50 duration-300">
+                  <Check className="size-10" strokeWidth={3} />
+                </span>
+                <h2 className="mt-5 font-display text-2xl font-bold">Matkasi on varattu!</h2>
+                <p className="mt-2 max-w-xs text-sm leading-relaxed text-muted-foreground">
+                  Vahvistus ja liput on lähetetty sähköpostiisi. Hyvää matkaa saaristoon!
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setStep("tickets")}
+                  className="cta-gradient mt-6 flex w-full items-center justify-center gap-2 rounded-2xl py-4 font-display text-base font-semibold text-primary-foreground shadow-lg shadow-primary/25 active:scale-[0.98]"
+                >
+                  <QrCode className="size-5" /> Näytä matkaliput
+                </button>
+              </div>
+            )}
+
+            {step === "tickets" && (
+              <>
+                <div className="flex items-center justify-between">
+                  <h2 className="font-display text-xl font-bold">Matkaliput</h2>
+                  <button
+                    type="button"
+                    onClick={() => setStep("closed")}
+                    aria-label="Sulje liput"
+                    className="grid size-9 place-items-center rounded-full bg-muted text-muted-foreground"
+                  >
+                    <X className="size-4" />
+                  </button>
+                </div>
+                <ul className="mt-5 space-y-3">
+                  {ORDER_ITEMS.map((item, i) => (
+                    <li
+                      key={item.label}
+                      className="flex items-center justify-between gap-4 rounded-2xl border border-border bg-background p-4"
+                    >
+                      <div className="flex items-center gap-3">
+                        <span className="grid size-10 place-items-center rounded-xl bg-secondary text-secondary-foreground">
+                          <item.icon className="size-5" />
+                        </span>
+                        <div>
+                          <p className="text-sm font-semibold">{item.label}</p>
+                          <p className="text-xs text-muted-foreground">Näytä QR-koodi ovella</p>
+                        </div>
+                      </div>
+                      <FakeQr seed={i + 1} />
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
