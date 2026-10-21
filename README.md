@@ -1,40 +1,18 @@
-# Archipelago Trails
+# Turku Archipelago Planner
 
-Create a mobile-first web application prototype for a travel planning app focused on the Finnish archipelago (Turku Archipelago). The design should be modern, clean, and Nordic (use lots of white space, subtle blues, and greens).
+**Live Demo:** [https://archipelago-planner.lovable.app](https://archipelago-planner.lovable.app)
 
-Build the landing page with the following elements:
+## What is this?
 
-A hero section with a beautiful placeholder image of the Finnish archipelago and a bold headline: "Löydä Turun saaristo vaivattomasti".
+This is an interactive travel planning prototype designed specifically for the complex logistics of the Finnish Turku Archipelago. It visually demonstrates how a unified platform can simplify island-hopping by combining ferry schedules, accommodation, and transport modes into a single, cohesive itinerary.
 
-A multi-step form or a clean card-based questionnaire for the user to input their travel preferences:
+The goal of this project is to highlight the user experience (UX) solutions for "Mobility as a Service" (MaaS) in regional travel, showing how a smart algorithm can eliminate the bottleneck of buying separate tickets from multiple local vendors.
 
-Budjetti: A slider (e.g., 50€ - 1000€+).
+## How to Use the Planner
 
-Kulkuneuvo: Selectable buttons with Lucide icons for Pyörä (Bike), Auto (Car), and Julkinen/Kävely (Public/Walking).
-
-Kesto: Dropdown or number input for days.
-
-Matkan tyyli: Tags that can be selected (e.g., "Rento", "Aktiivinen", "Luksus", "Luonto").
-
-A large, prominent Call-to-Action button at the bottom: "Suunnittele reitti". Make the UI feel interactive. Use Tailwind CSS for styling.
-
-This project was built with [Lovable](https://lovable.dev).
-
-## Build with Lovable
-
-Continue developing this project in the [Lovable editor](https://lovable.dev/projects/850a207b-6e50-43fb-bab6-d9d21b25ac32).
-
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: every change made in Lovable is committed straight to this repository.
-- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
-
-## Development
-
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
-
-```sh
-git clone <this-repository-url>
-cd <repository-name>
-npm i
-npm run dev
-```
+1. **Set Travel Preferences:** Use the landing page controls to input your desired trip parameters. Adjust the budget slider, select your preferred transport mode (e.g., Bicycle or Car), and define the trip duration and style.
+2. **Generate Itinerary:** Click "Suunnittele reitti". Observe the simulated loading state that mimics an AI routing algorithm analyzing ferry capacities and weather conditions.
+3. **Review the Route:** Explore the generated timeline. Notice how the itinerary dynamically pairs ferry departures (e.g., M/S Stella) with activities and hotel check-ins in a logical sequence. 
+4. **Test the Unified Checkout:** Click "Varaa ja maksa matka" to see the centralized checkout flow. This demonstrates the core value proposition: bundling ferries, rentals, and hotels into a single transaction.
+5. **View Travel Wallet (Offline Mode):** After the mock payment, explore the "Matkalompakko" view where all QR codes and tickets are stored, accessible even without a reliable internet connection in the outer archipelago.
+```eof
